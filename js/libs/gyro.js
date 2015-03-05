@@ -209,6 +209,9 @@
 					measurements.x = e.acceleration.x - calibration.x;
 					measurements.y = e.acceleration.y - calibration.y;
 					measurements.z = e.acceleration.z - calibration.z;
+					measurements.alphaR = e.rotationRate.alpha;
+					measurements.betaR  = e.rotationRate.beta;
+					measurements.gammaR = e.rotationRate.gamma;
 				}, true);
 			}
 			function deviceOrientationListener (e) {
