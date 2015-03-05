@@ -24,7 +24,7 @@ function init() {
   camera = new THREE.PerspectiveCamera( 45, window.innerWidth /
       window.innerHeight, 1, 2000 );
 
-  camera.position.set( 0, 10, 0 );
+  camera.position.set( 0, 100, 0 );
   // camera.lookAt(scene.position);
 
   deviceControls = new THREE.DeviceOrientationControls( camera );
