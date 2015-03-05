@@ -6,20 +6,28 @@ var SCENE_HEIGHT = 1000;
 // create scene, camera, one plane, light,
 var camera, scene, renderer, deviceControls, ground;
 
+var clock;
+
+var lastBalloonReset = 0,
+    balloons = [];
+
 function init() {
   var plane, light, groundTexture;
 
-  camera = new THREE.PerspectiveCamera( 45, window.innerWidth /
-      window.innerHeight, 1, 2000 );
-
-	camera.position.set( 0, 0, 0 );
-
-  deviceControls = new THREE.DeviceOrientationControls( camera );
+  clock = new THREE.Clock();
 
 	scene = new THREE.Scene();
   scene.fog = new THREE.Fog( 0xcce0ff, 500, 10000 );
 
   scene.add( new THREE.AmbientLight( 0x666666 ) );
+
+  camera = new THREE.PerspectiveCamera( 45, window.innerWidth /
+      window.innerHeight, 1, 2000 );
+
+  camera.position.set( 0, 10, 0 );
+  // camera.lookAt(scene.position);
+
+  deviceControls = new THREE.DeviceOrientationControls( camera );
 
   var light = new THREE.PointLight( 0xaaddaa, .5 );
   light.position.set( 50, 1200, -500 );
@@ -59,6 +67,8 @@ function animate() {
 
   deviceControls.update();
 
+  movementUpdate();
+
   TWEEN.update();
 
   renderer.render( scene, camera );
@@ -82,8 +92,7 @@ function startBalloons () {
   }, 500);
 }
 
-var lastBalloonReset = 0;
-var balloons = [];
+
 
 /*
  *  make new balloon
@@ -163,58 +172,6 @@ function doTween (position, target, obj, easing, time) {
   tween.start();
 }
 
-function findNewPoint (x, y, angleRadians, distance) {
-    var result = {};
-
-    result.x = Math.round(Math.cos(angleRadians) * distance + x);
-    result.z = Math.round(Math.sin(angleRadians) * distance + y);
-
-    return result;
-}
-
-function addKeyHandler () {
-  document.addEventListener( 'keyup', onKeyUp, false);
-  document.addEventListener( 'keydown', onKeyDown, false);
-}
-
-// TODO: start using velocities as demonstrated in example_3d_movement.html
-function onKeyUp (event) {
-  var increment = 50,
-      angleY    = camera.rotation.y,
-      x         = camera.position.x,
-      z         = camera.position.z,
-      distance;
-
-  event.preventDefault();
-
-  console.log(event.keyCode);
-
-  switch(event.keyCode) {
-    case 38: //Up
-    angleY += QUARTER_CIRCLE_RADIANS
-    distance = increment;
-    break;
-
-    case 40: //Down
-    angleY -= QUARTER_CIRCLE_RADIANS
-    distance = increment;
-    break;
-
-    case 39: //Right
-    distance = -increment;
-    break;
-
-    case 37:// left
-    distance = increment;
-    break;
-  }
-
-  var newPoint = findNewPoint(x, z, angleY, distance);
-
-  camera.position.x = newPoint.x;
-  camera.position.z = newPoint.z;
-}
-
 var move = {
   forward: false,
   back: false,
@@ -222,24 +179,35 @@ var move = {
   right: false
 };
 
-function onKeyDown (event) {
-  switch(event.keyCode) {
-    case 38: //Up
-    move.forward = true;
-    break;
+function movementUpdate () {
+  var delta = clock.getDelta(); // seconds.
+	var moveDistance = 200 * delta; // 200 pixels / second
+	var rotateAngle = Math.PI / 2 * delta;   // pi/2 radians (90 degrees) / second
 
-    case 40: //Down
-    move.back = true;
-    break;
-
-    case 39: //Right
-    move.right = true;
-    break;
-
-    case 37: // left
-    move.left = truel
-    break;
+  if (move.forward) {
+    camera.translateZ( -moveDistance );
   }
+
+  if (move.back) {
+    camera.translateZ( moveDistance );
+  }
+
+  if (move.left) {
+    camera.translateX( -moveDistance );
+  }
+
+  if (move.right) {
+    camera.translateX( moveDistance );
+  }
+
+  if (move.up) {
+    camera.translateY( moveDistance );
+  }
+
+  if (move.down) {
+    camera.translateY( -moveDistance );
+  }
+
 }
 
 function makeHUD () {
@@ -257,16 +225,18 @@ function makeHUD () {
 
   for (var i = 0; i < 6; i++) {
     huds[i] = new THREE.Mesh( geometry, material );
-    camera.add(huds[i]);
+    huds[i].position.y =  100;
+    scene.add(huds[i]);
+
   }
 
-  var offset = 20;
+  var offset = 250;
 
   huds[0].position.z =  offset;
   huds[1].position.z = -offset;
 
-  huds[2].position.y =  offset;
-  huds[3].position.y = -offset;
+  // huds[2].position.y =  100;
+  // huds[3].position.y =  100;
 
   huds[4].position.x =  offset;
   huds[5].position.x = -offset;
@@ -279,4 +249,3 @@ function makeHUD () {
 
 init();
 animate();
-addKeyHandler();
