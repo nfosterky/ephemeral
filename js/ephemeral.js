@@ -82,6 +82,7 @@ function startBalloons () {
   }, 500);
 }
 
+var lastBalloonReset = 0;
 var balloons = [];
 
 /*
@@ -118,8 +119,6 @@ function makeBalloon (pos) {
 
   doTween(pos, target, mesh, TWEEN.Easing.Cubic.Out, 25000)
 }
-
-var lastBalloonReset = 0;
 
 function resetBalloon () {
   var b, pos, target;
@@ -175,6 +174,7 @@ function findNewPoint (x, y, angleRadians, distance) {
 
 function addKeyHandler () {
   document.addEventListener( 'keyup', onKeyUp, false);
+  document.addEventListener( 'keydown', onKeyDown, false);
 }
 
 // TODO: start using velocities as demonstrated in example_3d_movement.html
@@ -213,6 +213,33 @@ function onKeyUp (event) {
 
   camera.position.x = newPoint.x;
   camera.position.z = newPoint.z;
+}
+
+var move = {
+  forward: false,
+  back: false,
+  left: false,
+  right: false
+};
+
+function onKeyDown (event) {
+  switch(event.keyCode) {
+    case 38: //Up
+    move.forward = true;
+    break;
+
+    case 40: //Down
+    move.back = true;
+    break;
+
+    case 39: //Right
+    move.right = true;
+    break;
+
+    case 37: // left
+    move.left = truel
+    break;
+  }
 }
 
 function makeHUD () {
