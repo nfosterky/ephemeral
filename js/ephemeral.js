@@ -34,7 +34,7 @@ function init() {
   scene.add( light );
 
   groundTexture = THREE.ImageUtils.loadTexture(
-      "textures/moon.png" );
+      "textures/Moon.png" );
 
   // groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
   // groundTexture.repeat.set( 432, 432 );
@@ -103,7 +103,7 @@ function makeBalloon (pos) {
   var geometry = new THREE.SphereGeometry(15, 10, 10);
 
   var groundTexture = THREE.ImageUtils.loadTexture(
-      "textures/moon.png" );
+      "textures/Moon.png" );
 
   // TODO: random color
   var material = new THREE.MeshPhongMaterial({
