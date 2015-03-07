@@ -1,21 +1,16 @@
 var SECOND = 1000;
 
-function convertDegreesToRadians (degrees) {
-  return degrees * (Math.PI / 180);
-}
-
-var CANVAS_MID_TOP = window.innerHeight / 2;
-
-// var txtM   = document.getElementById("txtM"),
-//     light  = document.getElementById("constraintLight");
-
-var dt = 0.1; // multiply by second = hundred microseconds
-
-var alphaR, betaR, gammaR;
+// multiply by second = hundred microseconds
+var dt = 0.1,
+    period = dt * SECOND;
 
 var top = 0;
 
-var period = dt * SECOND;
+var alphaR, betaR, gammaR;
+
+function convertDegreesToRadians (degrees) {
+  return degrees * (Math.PI / 180);
+}
 
 function initGyro() {
   var x, y, z;
@@ -37,6 +32,8 @@ function initGyro() {
     // if zero-velocity constraint is applicable
     var tol = 0.15,
         sigma2velUpdate = 0.0001;
+
+    var z_k, R_k, H_k;
 
     if (o.x !== null) {
       ax = parseFloat(o.x.toFixed(5));
@@ -82,6 +79,8 @@ function initGyro() {
       lvY = linearVelocity.elements[1];
       lvZ = linearVelocity.elements[2];
 
+      // if angular velocity is predictable, it could be used to prevent
+      // false positive linear movement
       angularVelocity = $V([betaR, gammaR, alphaR]);
       // avX = angularVelocity.elements[0];
       // avY = angularVelocity.elements[1];
@@ -104,7 +103,6 @@ function initGyro() {
 
       // y movement
       if (lvX > 0.5) {
-        console.log("up");
         move.up = true;
 
       } else {
@@ -118,10 +116,9 @@ function initGyro() {
       } else {
         move.down = false;
       }
-      
+
       // x movement
       // if (lvY > 0.5) {
-      //   console.log("right");
       //   move.right = true;
       //
       // } else {
@@ -129,39 +126,32 @@ function initGyro() {
       // }
       //
       // if (lvY < -0.5) {
-      //   console.log("left");
       //   move.left = true;
       //
       // } else {
       //   move.left = false;
       // }
 
-
-      // console.log(lvY);
-
       linearAccel = accelWithoutGravity.subtract(
         angularVelocity.cross(linearVelocity)
       );
 
-      if (Math.abs(u_k.modulus()) < tol) { // not much accel
+      // if not much accel
+      if (Math.abs(u_k.modulus()) < tol) {
 
         // apply zero-velocity constraint through an 'observation' of 0
-        var z_k = $V([0,0,0]),
-            R_k = Matrix.Diagonal([
-              sigma2velUpdate, sigma2velUpdate, sigma2velUpdate
-            ]),
-            H_k = Matrix.Zero(3,3)
-                    .augment(Matrix.I(3))
-                    .augment(Matrix.Zero(3,3));
+        z_k = $V([0,0,0]);
+
+        H_k = Matrix.Zero(3,3)
+                .augment(Matrix.I(3))
+                .augment(Matrix.Zero(3,3));
+
+        R_k = Matrix.Diagonal([
+          sigma2velUpdate, sigma2velUpdate, sigma2velUpdate
+        ]);
 
         KM.update(new KalmanObservation(z_k, H_k, R_k));
-
-        // light.style.display = "block";
-
-      } else {
-        // light.style.display = "none";
       }
-
     }
   });
 }
