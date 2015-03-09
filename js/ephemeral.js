@@ -204,8 +204,12 @@ function movementUpdate () {
     camera.translateY( moveDistance );
   }
 
-  if (move.down) {
+  if (move.down && parseFloat(camera.position.y) > parseFloat(ground.position.y + moveDistance) ) {
     camera.translateY( -moveDistance );
+  }
+
+  if (camera.position.y <= -10) {
+    camera.position.y = 0;
   }
 
 }
